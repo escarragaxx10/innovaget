@@ -13,7 +13,7 @@ def registro_maestro(datos: schemas.EmpresaYAdminCreate, db: Session = Depends(g
 
     # 1. Validar token de activación
     token_db = db.query(models.TokenRegistro).filter(
-        models.TokenRegistro.codigo == datos.codigo_activacion.strip().upper(),  # ✅ Normalizar a mayúsculas
+        models.TokenRegistro.codigo == datos.codigo_activacion.strip().upper(),
         models.TokenRegistro.usado == False
     ).first()
 
@@ -23,7 +23,7 @@ def registro_maestro(datos: schemas.EmpresaYAdminCreate, db: Session = Depends(g
             detail="Código de activación inválido o ya utilizado."
         )
 
-    # ✅ Verificar que el NIT y email no estén ya registrados
+    # 2. Verificar que el NIT y email no estén ya registrados
     if db.query(models.Empresa).filter(models.Empresa.nit == datos.nit).first():
         raise HTTPException(status_code=400, detail="Ya existe una empresa registrada con este NIT")
 
@@ -31,16 +31,18 @@ def registro_maestro(datos: schemas.EmpresaYAdminCreate, db: Session = Depends(g
         raise HTTPException(status_code=400, detail="Ya existe un usuario con este correo")
 
     try:
-        # 2. Crear empresa
+        # 3. Crear empresa
         nueva_empresa = models.Empresa(
             nombre_sas=datos.nombre_sas,
             nit=datos.nit,
-            activa=True
+            activa=True,
+            mail_email=datos.mail_email,         # ✅ Correo para facturas
+            mail_password=datos.mail_password,   # ✅ App Password de Gmail
         )
         db.add(nueva_empresa)
         db.flush()
 
-        # 3. Crear administrador
+        # 4. Crear administrador
         nuevo_admin = models.User(
             email=datos.email_admin,
             hashed_password=get_password_hash(datos.password_admin),
@@ -49,10 +51,10 @@ def registro_maestro(datos: schemas.EmpresaYAdminCreate, db: Session = Depends(g
         )
         db.add(nuevo_admin)
 
-        # 4. Quemar el token
+        # 5. Quemar el token
         token_db.usado = True
 
-        # 5. Commit final
+        # 6. Commit final
         db.commit()
         db.refresh(nueva_empresa)
         db.refresh(nuevo_admin)

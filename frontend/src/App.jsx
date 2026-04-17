@@ -16,28 +16,32 @@ import Compras from "./pages/compras/Compras";
 import HistorialCajas from "./pages/cajas/HistorialCajas";
 import Perfil from "./pages/perfil/Perfil";
 import PrivateRoute from "./components/PrivateRoute";
+import SuperAdmin from "./pages/super-admin/SuperAdmin";
+import ResetPassword from "./pages/auth/ResetPassword";
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
-        <Route path="/productos" element={<PrivateRoute><Productos /></PrivateRoute>} />
-        <Route path="/ventas" element={<PrivateRoute roles={["admin"]}><Ventas /></PrivateRoute>} />
-        <Route path="/cajas" element={<PrivateRoute roles={["admin", "cajero"]}><Cajas /></PrivateRoute>} />
-        <Route path="/caja" element={<PrivateRoute roles={["admin", "cajero"]}><PuntoVenta /></PrivateRoute>} />
-        <Route path="/inventario" element={<PrivateRoute><Inventario /></PrivateRoute>} />
-        <Route path="/caja" element={<PrivateRoute roles={["admin", "cajero"]}><PuntoVenta /></PrivateRoute>} />
-        <Route path="/proveedores" element={<PrivateRoute roles={["admin"]}><Proveedores /></PrivateRoute>} />
-        <Route path="/sucursales" element={<PrivateRoute roles={["admin"]}><Sucursales /></PrivateRoute>} />
-        <Route path="/empleados" element={<PrivateRoute roles={["admin"]}><Empleados /></PrivateRoute>} />
-        <Route path="/reportes" element={<PrivateRoute roles={["admin"]}><Reportes /></PrivateRoute>} />
-        <Route path="/categorias" element={<PrivateRoute roles={["admin"]}><Categorias /></PrivateRoute>} />
-        <Route path="/compras" element={<PrivateRoute roles={["admin"]}><Compras /></PrivateRoute>} />
-        <Route path="/historial-cajas" element={<PrivateRoute roles={["admin"]}><HistorialCajas /></PrivateRoute>} />
-        <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
-        <Route path="*" element={<Navigate to="/login" />} />
+       <Route path="/login" element={<Login />} />
+       <Route path="/dashboard" element={<PrivateRoute><Dashboard /></PrivateRoute>} />
+       <Route path="/productos" element={<PrivateRoute><Productos /></PrivateRoute>} />
+       <Route path="/ventas" element={<PrivateRoute roles={["admin"]}><Ventas /></PrivateRoute>} />
+       <Route path="/cajas" element={<PrivateRoute roles={["admin", "cajero"]}><Cajas /></PrivateRoute>} />
+       <Route path="/caja" element={<PrivateRoute roles={["admin", "cajero"]}><PuntoVenta /></PrivateRoute>} />
+       <Route path="/inventario" element={<PrivateRoute><Inventario /></PrivateRoute>} />  
+       <Route path="/clientes" element={<PrivateRoute roles={["admin", "cajero"]}><Clientes /></PrivateRoute>} />
+       <Route path="/proveedores" element={<PrivateRoute roles={["admin"]}><Proveedores /></PrivateRoute>} />
+       <Route path="/sucursales" element={<PrivateRoute roles={["admin"]}><Sucursales /></PrivateRoute>} />
+       <Route path="/empleados" element={<PrivateRoute roles={["admin"]}><Empleados /></PrivateRoute>} />
+       <Route path="/reportes" element={<PrivateRoute roles={["admin"]}><Reportes /></PrivateRoute>} />
+       <Route path="/categorias" element={<PrivateRoute roles={["admin"]}><Categorias /></PrivateRoute>} />
+       <Route path="/compras" element={<PrivateRoute roles={["admin"]}><Compras /></PrivateRoute>} />
+       <Route path="/historial-cajas" element={<PrivateRoute roles={["admin"]}><HistorialCajas /></PrivateRoute>} />
+       <Route path="/perfil" element={<PrivateRoute><Perfil /></PrivateRoute>} />
+       <Route path="/super-admin" element={<SuperAdmin />} />
+       <Route path="/reset-password" element={<ResetPassword />} />
+       <Route path="*" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   );

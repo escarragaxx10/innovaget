@@ -11,7 +11,8 @@ export default function Clientes() {
   const [error, setError] = useState("");
   const [guardando, setGuardando] = useState(false);
   const empresa_id = parseInt(localStorage.getItem("empresa_id"));
-
+  console.log("empresa_id:", localStorage.getItem("empresa_id"));
+  console.log("token:", localStorage.getItem("token"));
   const [form, setForm] = useState({ nombre: "", cedula_nit: "", telefono: "", email: "", empresa_id });
 
   const cargarDatos = async () => {

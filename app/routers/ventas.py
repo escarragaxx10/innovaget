@@ -6,7 +6,6 @@ from app.models import models
 from app.schemas import schemas
 from app.core.security import verificar_rol
 
-# --- IMPORTACIONES PARA EL CORREO Y PDF ---
 from app.core.pdf_generator import generar_pdf_factura
 from app.core.mailer import enviar_factura_email
 
@@ -33,10 +32,9 @@ def crear_venta(
             detail="Operación denegada: La caja seleccionada no está ABIERTA en esta sucursal."
         )
 
-    # 🔥 DEFINIR VENDEDOR CORRECTAMENTE
+    # Definir vendedor correctamente
     vendedor_id = None
     vendedor_empleado_id = None
-
     if isinstance(current_user, models.User):
         vendedor_id = current_user.id
     elif isinstance(current_user, models.Empleado):
@@ -44,6 +42,7 @@ def crear_venta(
 
     # Crear venta
     nueva_venta = models.Venta(
+
         cliente_id=venta.cliente_id,
         sucursal_id=venta.sucursal_id,
         empresa_id=venta.empresa_id,
@@ -56,6 +55,8 @@ def crear_venta(
         descuento_valor=venta.descuento_valor or 0.0,
         total=0,
         estado="COMPLETADA"
+        
+        
     )
 
     db.add(nueva_venta)
@@ -99,7 +100,7 @@ def crear_venta(
             usuario_id=current_user.id if isinstance(current_user, models.User) else None
         ))
 
-    # Descuento
+    # Aplicar descuento
     descuento_aplicado = 0.0
     if venta.descuento_porcentaje and venta.descuento_porcentaje > 0:
         descuento_aplicado = total_factura * (venta.descuento_porcentaje / 100)
@@ -109,7 +110,7 @@ def crear_venta(
     total_con_descuento = max(0, total_factura - descuento_aplicado)
     nueva_venta.total = total_con_descuento
 
-    # Cambio
+    # Calcular cambio
     if nueva_venta.pago_con and nueva_venta.pago_con >= total_con_descuento:
         nueva_venta.cambio = nueva_venta.pago_con - total_con_descuento
     else:
@@ -118,23 +119,30 @@ def crear_venta(
     db.commit()
     db.refresh(nueva_venta)
 
-    return nueva_venta
-    # Envío automático de factura por correo
-    cliente = db.query(models.Cliente).filter(models.Cliente.id == nueva_venta.cliente_id).first()
+    # ✅ CORRECTO: Envío de correo ANTES del return
+    if nueva_venta.cliente_id:
+     cliente = db.query(models.Cliente).filter(
+        models.Cliente.id == nueva_venta.cliente_id
+    ).first()
     if cliente and cliente.email:
         try:
-            pdf_content = generar_pdf_factura(nueva_venta, current_user.empresa)
+            empresa = db.query(models.Empresa).filter(
+                models.Empresa.id == nueva_venta.empresa_id
+            ).first()
+            pdf_content = generar_pdf_factura(nueva_venta, empresa)
             background_tasks.add_task(
                 enviar_factura_email,
                 destinatario=cliente.email,
                 pdf_content=pdf_content,
                 factura_id=nueva_venta.id,
-                nombre_cliente=cliente.nombre
+                nombre_cliente=cliente.nombre,
+                nombre_empresa=empresa.nombre_sas if empresa else "Innovagét ERP",
+                mail_email=empresa.mail_email if empresa else None,        # ✅ AGREGAR
+                mail_password=empresa.mail_password if empresa else None,  # ✅ AGREGAR
             )
-        except Exception:
-            pass  # No fallar la venta si el correo falla
-
-    return nueva_venta
+        except Exception as e:
+            print(f"❌ Error al preparar correo: {str(e)}")
+    return nueva_venta  # ✅ return AL FINAL
 
 # --- 2. ANULAR VENTA ---
 @router.post("/anular/{venta_id}")
@@ -168,7 +176,7 @@ def anular_venta(
 @router.get("/", response_model=List[schemas.VentaOut])
 def listar_historial_ventas(
     db: Session = Depends(get_db),
-    current_user: models.User = Depends(verificar_rol(["admin", "gerente"]))
+    current_user=Depends(verificar_rol(["admin"]))
 ):
     return db.query(models.Venta).join(models.Sucursal).filter(
         models.Sucursal.empresa_id == current_user.empresa_id

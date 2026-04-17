@@ -11,16 +11,19 @@ class Empresa(Base):
     nombre_sas = Column(String, unique=True, index=True)
     nit = Column(String, unique=True, index=True)
     activa = Column(Boolean, default=True)
-    
+    fecha_registro = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    mail_email = Column(String, nullable=True)      # ✅ Correo para enviar facturas
+    mail_password = Column(String, nullable=True)   # ✅ App Password de Gmail
+ 
     sucursales = relationship("Sucursal", back_populates="dueno")
     usuarios = relationship("User", back_populates="empresa")
     empleados = relationship("Empleado", back_populates="empresa")
     clientes = relationship("Cliente", back_populates="empresa")
     proveedores = relationship("Proveedor", back_populates="empresa")
     ventas = relationship("Venta", back_populates="empresa")
-    productos = relationship("Producto", back_populates="empresa")  # ✅ AGREGADO
-    categorias = relationship("Categoria", back_populates="empresa")  # ✅ AGREGAR
-
+    productos = relationship("Producto", back_populates="empresa")
+    categorias = relationship("Categoria", back_populates="empresa")
+ 
 class Categoria(Base):
     __tablename__ = "categorias"
     id = Column(Integer, primary_key=True, index=True)
@@ -36,7 +39,8 @@ class TokenRegistro(Base):
     codigo = Column(String, unique=True, index=True)
     usado = Column(Boolean, default=False)
     fecha_creacion = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-
+    fecha_vencimiento = Column(DateTime, default=lambda: datetime.now(timezone.utc) + timedelta(days=30))  # ✅ NUEVO
+ 
 class Licencia(Base):
     __tablename__ = "licencias"
     id = Column(Integer, primary_key=True, index=True)
@@ -67,6 +71,7 @@ class User(Base):
     hashed_password = Column(String)
     role = Column(String)
     empresa_id = Column(Integer, ForeignKey("empresas.id"), nullable=True)
+    nombre = Column(String, nullable=True)
     
     empresa = relationship("Empresa", back_populates="usuarios")
     ventas = relationship("Venta", back_populates="vendedor_admin")
@@ -82,6 +87,7 @@ class Empleado(Base):
     role = Column(String)
     empresa_id = Column(Integer, ForeignKey("empresas.id"))
     sucursal_id = Column(Integer, ForeignKey("sucursales.id"))
+    nombre = Column(String, nullable=True)
     
     empresa = relationship("Empresa", back_populates="empleados")
     sucursal = relationship("Sucursal", back_populates="empleados")
@@ -186,7 +192,7 @@ class Cliente(Base):
     id = Column(Integer, primary_key=True, index=True)
     nombre = Column(String)
     empresa_id = Column(Integer, ForeignKey("empresas.id"))
-    cedula_nit = Column(String, unique=True, index=True)
+    cedula_nit = Column(String, index=True)
     telefono = Column(String, nullable=True)
     email = Column(String, nullable=True)
     
@@ -217,3 +223,12 @@ class MovimientoInventario(Base):
     
     producto = relationship("Producto", back_populates="movimientos")
     usuario = relationship("User", back_populates="movimientos")
+    
+class PasswordResetToken(Base):
+    __tablename__ = "password_reset_tokens"
+    id = Column(Integer, primary_key=True, index=True)
+    email = Column(String, index=True)
+    token = Column(String, unique=True, index=True)
+    usado = Column(Boolean, default=False)
+    fecha_creacion = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    fecha_vencimiento = Column(DateTime)

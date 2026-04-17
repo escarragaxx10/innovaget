@@ -1,16 +1,38 @@
 import { Navigate } from "react-router-dom";
 
+function parseJwt(token) {
+  try {
+    const base64 = token.split(".")[1].replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64));
+  } catch {
+    return null;
+  }
+}
+
 export default function PrivateRoute({ children, roles = [] }) {
   const token = localStorage.getItem("token");
-  const role = localStorage.getItem("role");
 
-  // Si no hay token, redirigir al login
   if (!token) {
     return <Navigate to="/login" replace />;
   }
 
-  // Si se especifican roles y el usuario no tiene el rol correcto
-  if (roles.length > 0 && !roles.includes(role)) {
+  const payload = parseJwt(token);
+
+  if (!payload) {
+    localStorage.clear();
+    return <Navigate to="/login" replace />;
+  }
+
+  // Verificar expiración
+  const ahora = Math.floor(Date.now() / 1000);
+  if (payload.exp && ahora > payload.exp) {
+    localStorage.clear();
+    return <Navigate to="/login" replace />;
+  }
+
+  const role = (payload.role || "").toLowerCase().trim();
+
+  if (roles.length > 0 && !roles.map(r => r.toLowerCase()).includes(role)) {
     return <Navigate to="/dashboard" replace />;
   }
 

@@ -80,7 +80,7 @@ def obtener_historial_producto(
     ).order_by(models.MovimientoInventario.fecha.desc()).all()
 
     if not historial:
-        raise HTTPException(status_code=404, detail="No hay movimientos registrados para este producto")
+      return []
 
     return historial
 

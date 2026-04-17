@@ -1,6 +1,5 @@
 from xhtml2pdf import pisa
 from io import BytesIO
-from datetime import datetime
 
 def generar_pdf_factura(venta, empresa):
     
@@ -50,9 +49,9 @@ def generar_pdf_factura(venta, empresa):
         """
 
     # Datos empresa
-    nombre_empresa = empresa.nombre_sas if empresa else "Innovagét"
+    nombre_empresa = empresa.nombre_sas if empresa else "Mi Empresa"
     nit_empresa = empresa.nit if empresa else "---"
-    
+
     # Cliente
     nombre_cliente = "Consumidor Final"
     cedula_cliente = "---"
@@ -69,9 +68,8 @@ def generar_pdf_factura(venta, empresa):
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
             body {{ font-family: Arial, sans-serif; font-size: 11px; color: #1f2937; background: #fff; }}
-            
             .header {{
-                background: linear-gradient(135deg, #14532d 0%, #16a34a 100%);
+                background-color: #14532d;
                 color: white;
                 padding: 20px 24px;
                 margin-bottom: 0;
@@ -86,8 +84,8 @@ def generar_pdf_factura(venta, empresa):
                 font-size: 22px;
                 font-weight: bold;
                 letter-spacing: 1px;
+                color: white;
             }}
-            .empresa-nombre span {{ color: #4ade80; }}
             .empresa-info {{ font-size: 10px; color: rgba(255,255,255,0.8); margin-top: 4px; }}
             .factura-num {{
                 text-align: right;
@@ -96,8 +94,7 @@ def generar_pdf_factura(venta, empresa):
                 border-radius: 6px;
             }}
             .factura-num-label {{ font-size: 9px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 1px; }}
-            .factura-num-val {{ font-size: 20px; font-weight: bold; }}
-
+            .factura-num-val {{ font-size: 20px; font-weight: bold; color: white; }}
             .info-section {{
                 display: flex;
                 gap: 0;
@@ -119,7 +116,6 @@ def generar_pdf_factura(venta, empresa):
             }}
             .info-val {{ font-size: 12px; color: #111827; margin-bottom: 3px; }}
             .info-sub {{ font-size: 10px; color: #6b7280; }}
-
             .productos-section {{ padding: 16px 20px; }}
             .productos-title {{
                 font-size: 10px;
@@ -129,7 +125,6 @@ def generar_pdf_factura(venta, empresa):
                 font-weight: bold;
                 margin-bottom: 10px;
             }}
-
             table {{ width: 100%; border-collapse: collapse; }}
             thead tr {{ background: #f0fdf4; }}
             thead th {{
@@ -142,21 +137,17 @@ def generar_pdf_factura(venta, empresa):
                 border-bottom: 2px solid #16a34a;
             }}
             thead th:last-child, thead th:nth-child(3) {{ text-align: right; }}
-
-            .totales-section {{
-                padding: 0 20px 16px;
-            }}
+            .totales-section {{ padding: 0 20px 16px; }}
             .totales-table {{ width: 100%; border-collapse: collapse; margin-left: auto; }}
             .totales-table td {{ padding: 4px 10px; font-size: 11px; }}
             .total-final td {{
                 padding: 10px;
-                background: #052e16;
+                background-color: #052e16;
                 color: white;
                 font-size: 14px;
                 font-weight: bold;
             }}
             .total-final td:last-child {{ text-align: right; color: #4ade80; font-size: 16px; }}
-
             .footer {{
                 background: #f9fafb;
                 border-top: 2px solid #e5e7eb;
@@ -166,7 +157,6 @@ def generar_pdf_factura(venta, empresa):
                 color: #6b7280;
             }}
             .footer strong {{ color: #16a34a; }}
-
             .estado-badge {{
                 display: inline-block;
                 padding: 2px 8px;
@@ -185,8 +175,8 @@ def generar_pdf_factura(venta, empresa):
         <div class="header">
             <div class="header-top">
                 <div>
-                    <div class="empresa-nombre">Innova<span>gét</span></div>
-                    <div class="empresa-info">NIT: {nit_empresa} &nbsp;|&nbsp; Sistema ERP Empresarial</div>
+                    <div class="empresa-nombre">{nombre_empresa}</div>
+                    <div class="empresa-info">NIT: {nit_empresa}</div>
                 </div>
                 <div class="factura-num">
                     <div class="factura-num-label">Factura No.</div>
@@ -199,12 +189,12 @@ def generar_pdf_factura(venta, empresa):
         <!-- INFO CLIENTE Y VENTA -->
         <div class="info-section">
             <div class="info-box">
-                <div class="info-title">📋 Datos del cliente</div>
+                <div class="info-title">Datos del cliente</div>
                 <div class="info-val"><strong>{nombre_cliente}</strong></div>
-                <div class="info-sub">Cédula/NIT: {cedula_cliente}</div>
+                <div class="info-sub">Cedula/NIT: {cedula_cliente}</div>
             </div>
             <div class="info-box">
-                <div class="info-title">💳 Datos de pago</div>
+                <div class="info-title">Datos de pago</div>
                 <div class="info-val"><strong>{venta.medio_pago}</strong></div>
                 <div class="info-sub">Estado: <span class="estado-badge">{venta.estado}</span></div>
             </div>
@@ -212,7 +202,7 @@ def generar_pdf_factura(venta, empresa):
 
         <!-- PRODUCTOS -->
         <div class="productos-section">
-            <div class="productos-title">📦 Detalle de productos</div>
+            <div class="productos-title">Detalle de productos</div>
             <table>
                 <thead>
                     <tr>
@@ -246,9 +236,9 @@ def generar_pdf_factura(venta, empresa):
 
         <!-- FOOTER -->
         <div class="footer">
-            <p><strong>¡Gracias por elegir {nombre_empresa}!</strong></p>
-            <p style="margin-top: 4px;">Este documento es una factura electrónica generada por el sistema Innovagét ERP</p>
-            <p style="margin-top: 4px; color: #9ca3af;">Fecha de emisión: {fecha_str}</p>
+            <p><strong>Gracias por elegir {nombre_empresa}</strong></p>
+            <p style="margin-top: 4px;">Este documento es una factura electronica generada por {nombre_empresa}</p>
+            <p style="margin-top: 4px; color: #9ca3af;">Fecha de emision: {fecha_str}</p>
         </div>
 
     </body>

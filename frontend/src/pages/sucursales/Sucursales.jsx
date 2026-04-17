@@ -116,7 +116,7 @@ const handleGuardar = async (e) => {
                 </div>
               </div>
               <div style={styles.cardFooter}>
-                <span style={styles.idBadge}>ID: {suc.id}</span>
+                
                 <span style={styles.activaBadge}>✅ Activa</span>
               </div>
             </div>

@@ -7,6 +7,7 @@ from typing import Optional, List
 class UserBase(BaseModel):
     email: EmailStr
     role: str
+    nombre: Optional[str] = None
     empresa_id: Optional[int] = None
     sucursal_id: Optional[int] = None
 
@@ -19,6 +20,7 @@ class UserOut(BaseModel):
     role: str
     empresa_id: Optional[int] = None
     sucursal_id: Optional[int] = None
+    nombre: Optional[str] = None
     class Config:
         from_attributes = True
 
@@ -27,6 +29,7 @@ class EmployeeCreate(BaseModel):
     password: str
     role: str
     sucursal_id: int
+    nombre: Optional[str] = None
 
 class EmpresaYAdminCreate(BaseModel):
     nombre_sas: str
@@ -34,6 +37,8 @@ class EmpresaYAdminCreate(BaseModel):
     email_admin: EmailStr
     password_admin: str
     codigo_activacion: str
+    mail_email: Optional[EmailStr] = None       # ✅ Correo para enviar facturas
+    mail_password: Optional[str] = None         # ✅ App Password de Gmail
 
 class RegistroExitoso(BaseModel):
     mensaje: str
@@ -218,7 +223,7 @@ class MovimientoInventarioCreate(BaseModel):
 
 class MovimientoInventarioOut(MovimientoInventarioCreate):
     id: int
-    usuario_id: int
+    usuario_id: Optional[int] = None  
     fecha: datetime             # ✅ Ahora existe en el modelo
     class Config:
         from_attributes = True
@@ -235,3 +240,11 @@ class DashboardStats(BaseModel):
     ultimo_refresco: str
     class Config:
         from_attributes = True
+# Agrega este schema nuevo al final:
+class ActualizarPerfil(BaseModel):
+    nombre: Optional[str] = None
+    mail_email: Optional[EmailStr] = None
+    mail_password: Optional[str] = None
+
+    class Config:
+        extra = "ignore"  # ✅ Ignora cualquier campo extra que llegue
